@@ -1,0 +1,28 @@
+<html>
+<head>
+    <script type="module" src="elements/fuelcost/fuel-cost.js" ></script>
+    <script type="module" src="elements/vat/vat.js" ></script>
+    <script type="module" src="elements/payslip/payslip.js" ></script>
+    <script type="module" src="elements/propertytaxes/property-taxes.js" ></script>
+</head>
+<body>
+<div>
+    FUEL:
+<pwcalculator-fuelcost service-root="http://localhost:8080"/>
+</div>
+<div>
+    VAT:
+<pwcalculator-vat service-root="http://localhost:8080"/>
+</div>
+<div>
+    Payslip:
+    <pwcalculator-payslip service-root="http://localhost:8080"/>
+
+</div>
+<div>
+    Property:
+    <pwcalculator-propertytaxes service-root="http://localhost:8080" option-data='[["2021-10", "From 1st October 2021"],["2021-07", "1st July 2021 to 30th September 2021"],["2021","1st April 2021 to 30th June 2021"],["2020","8th July 2020 to 31st March 2021"]]'/>
+
+</div>
+</body>
+</html>
