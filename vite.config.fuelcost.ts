@@ -10,7 +10,7 @@ export default defineConfig({
       lib: {
           entry: './src/elements/FuelCostElement.ts',
           name:  'FuelCost',
-          fileName: 'fuel-cost'
+          fileName: 'fuelcost'
       }
     },
     plugins: [
