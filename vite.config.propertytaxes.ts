@@ -17,7 +17,7 @@ export default defineConfig({
         vue({
             template: {
                 compilerOptions: {
-                    isCustomElement: (tag) => tag.includes('pwcalculator-property-taxes'),
+                    isCustomElement: (tag) => tag.includes('pwcalculator-propertytaxes'),
                 }
             }
         }),
