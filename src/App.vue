@@ -20,4 +20,6 @@ import Vat from '@/components/Vat.ce.vue'
   </main>
 </template>
 
-<style scoped></style>
+<style lang="scss">
+@import '@/scss/globals.scss';
+</style>
