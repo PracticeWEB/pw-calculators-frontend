@@ -1,9 +1,9 @@
 <html>
 <head>
-    <script type="module" src="elements/fuelcost/fuel-cost.js" ></script>
+    <script type="module" src="elements/fuelcost/fuelcost.js" ></script>
     <script type="module" src="elements/vat/vat.js" ></script>
     <script type="module" src="elements/payslip/payslip.js" ></script>
-    <script type="module" src="elements/propertytaxes/property-taxes.js" ></script>
+    <script type="module" src="elements/propertytaxes/propertytaxes.js" ></script>
 </head>
 <body>
 <div>
@@ -16,7 +16,7 @@
 </div>
 <div>
     Payslip:
-    <pwcalculator-payslip service-root="http://localhost:8080"/>
+    <pwcalculator-payslip service-root="http://localhost:8080" option-data='[["2022-07", "2022/23 Tax Year Calculation (from July)"],["2022-04", "2022/23 Tax Year Calculation (April to July)"], ["2021", "2021/22 Tax Year Calculation"]]' />
 
 </div>
 <div>

@@ -23,7 +23,7 @@ export default defineConfig({
         }),
     ],
     define: {
-        'process.env': process.env// TODO protect thi more.
+        'process.env': {}
     },
     resolve: {
         alias: {

@@ -175,7 +175,7 @@ Property Taxes covers both Stamp Duty and Land  & Buildings Transaction Tax ( LB
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import currencyFormatter from '@/composables/CurrencyFormatter'
 
 // Defne types.
@@ -191,7 +191,7 @@ type propertyOutput = {
   secondHomeDuty: number
 }
 
-const props = defineProps(['serviceRoot', 'optionData'])
+const props = defineProps(['serviceRoot', 'optionData', 'defaultOption'])
 
 const input = ref<propertyInput>({
   region: 'england',
@@ -243,6 +243,19 @@ async function submitCalculation() {
   output.value = result
   processed.value = true;
 }
+
+onMounted(() => {
+  if (props.defaultOption) {
+    input.value.date = props.defaultOption;
+  } else if(props.optionData) {
+    // Parse the json and try to pick a default. Note we are duplicating the computed options.
+    const options = JSON.parse(props.optionData);
+    if (options[0][0]) {
+      input.value.date = options[0][0];
+    }
+  }
+})
+
 </script>
 
 <style lang="scss">

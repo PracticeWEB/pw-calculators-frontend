@@ -84,79 +84,37 @@
             <label class="form-item__label form-item__label--radio-spacing"  :class="{active: input.studentLoanLocation === 'scotland'}">
               <input type="radio" v-model="input.studentLoanLocation" value="scotland" class="form-item__input form-item__input--radio"/>Scotland or Northern Ireland
             </label>
-            <p>You will be covered under {{ studentLoanPlan }}</p>
+            <p v-if="studentLoanPlan !== 'none'">You will be covered under {{ studentLoanPlan }}</p>
           </fieldset>
         </div>
       </fieldset>
       <fieldset class="form-item">
         <p class="form-item__title">Tax year:</p>
         <div class="form-item__wrapper form-item__wrapper--year-selector  flex-wrap">
-          <label class="form-item__label flex-grow" :class="{active: input.date === '2022-07'}">
-            <input type="radio" v-model="input.date" value="2022-07" class="form-item__input form-item__input--radio form-item__input--radio--hidden"/>2022/23 Tax Year Calculation (from July)
-          </label>
-          <label class="form-item__label flex-grow" :class="{active: input.date === '2022-04'}">
-            <input type="radio" v-model="input.date" value="2022-04" class="form-item__input form-item__input--radio form-item__input--radio--hidden"/>2022/23 Tax Year Calculation (April to July)
-          </label>
-          <label class="form-item__label flex-grow" :class="{active: input.date === '2021'}">
-            <input type="radio" v-model="input.date" value="2021" class="form-item__input form-item__input--radio form-item__input--radio--hidden"/>2021/22 Tax Year Calculation
+          <label v-for="[date_key, date_value] in options" :key="date_key" class="form-item__label flex-grow" :class="{active: input.date === date_key}" >
+            <input type="radio" v-model="input.date" :value="date_key" class="form-item__input form-item__input--radio form-item__input--radio--hidden" />
+            {{ date_value }}
           </label>
         </div>
       </fieldset>
       <button type="submit" class="pw-calc-button btn et_pb_button">Calculate</button>
     </form>
     <div class="pw-calc-output pw-calc-output__width pw-calc-output--tabs"  v-if="processed">
-      <template>
         <p class="pw-calc-output__description">Results based on <strong>{{ resultPeriod }}</strong> Gross pay of <span>{{ resultGrossPay }}</span></p>
-      </template>
       <tabs>
-        <!-- TODO change to loop?-->
-        <tab :key="'annual'" :name="tabNames.annual">
+        <tab v-for="(tabname, tabkey) in tabNames"  :name="tabname" :key="tabkey">
           <dl>
             <div class="pw-calc-output__main">
-              <dt class="pw-calc-output__item pw-calc-output__item-title">Net Pay:</dt>
-              <dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.annual.netPay }} </dd>
+              <dt class="pw-calc-output__item pw-calc-output__item-title">Net Pay:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted[tabkey]["netPay"] }} </dd>
             </div>
             <p class="pw-calc-output__values-header">Breakdown</p>
             <div class="pw-calc-output__wrapper">
-              <dt class="pw-calc-output__item pw-calc-output__item--label">PAYE Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.annual.payeDeduction }}</dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">NI Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.annual.niDeduction }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Student Loan Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.annual.studentLoanDeduction }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Employers NI:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.annual.employerContribution }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Employers Cost:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.annual.employerCost }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Pension contributions:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.annual.pensionContribution }}</dd>
-            </div>
-          </dl>
-        </tab>
-        <tab :key="'month'" :name="tabNames.month">
-          <dl>
-            <div class="pw-calc-output__main">
-              <dt class="pw-calc-output__item pw-calc-output__item-title">Net Pay:</dt>
-              <dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.month.netPay }} </dd>
-            </div>
-            <p class="pw-calc-output__values-header">Breakdown</p>
-            <div class="pw-calc-output__wrapper">
-              <dt class="pw-calc-output__item pw-calc-output__item--label">PAYE Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.month.payeDeduction }}</dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">NI Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.month.niDeduction}} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Student Loan Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.month.studentLoanDeduction }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Employers NI:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.month.employerContribution }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Employers Cost:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.month.employerCost }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Pension contributions:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.month.pensionContribution }}</dd>
-            </div>
-          </dl>
-        </tab>
-        <tab :key="'week'" :name="tabNames.week">
-          <dl>
-            <div class="pw-calc-output__main">
-              <dt class="pw-calc-output__item pw-calc-output__item-title">Net Pay:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.week.netPay }} </dd>
-            </div>
-            <p class="pw-calc-output__values-header">Breakdown</p>
-            <div class="pw-calc-output__wrapper">
-              <dt class="pw-calc-output__item pw-calc-output__item--label">PAYE Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.week.payeDeduction }}</dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">NI Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.week.niDeduction }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Student Loan Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.week.studentLoanDeduction }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Employers NI:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.week.employerContribution }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Employers Cost:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.week.employerCost }} </dd>
-              <dt class="pw-calc-output__item pw-calc-output__item--label">Pension contributions:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted.week.pensionContribution }}</dd>
+              <dt class="pw-calc-output__item pw-calc-output__item--label">PAYE Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted[tabkey]["payeDeduction"] }}</dd>
+              <dt class="pw-calc-output__item pw-calc-output__item--label">NI Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted[tabkey]["niDeduction"] }} </dd>
+              <dt class="pw-calc-output__item pw-calc-output__item--label">Student Loan Deduction:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted[tabkey]["studentLoanDeduction"] }} </dd>
+              <dt class="pw-calc-output__item pw-calc-output__item--label">Employers NI:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted[tabkey]["employerContribution"] }} </dd>
+              <dt class="pw-calc-output__item pw-calc-output__item--label">Employers Cost:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted[tabkey]["employerCost"] }} </dd>
+              <dt class="pw-calc-output__item pw-calc-output__item--label">Pension contributions:</dt><dd class="pw-calc-output__item pw-calc-output__item--value">{{ outputFormatted[tabkey]["pensionContribution"] }}</dd>
             </div>
           </dl>
         </tab>
@@ -169,7 +127,7 @@
 </template>
 <script setup lang="ts">
 
-import {ref, computed, watch} from "vue";
+import {ref, computed, watch, onMounted} from "vue";
 import currencyFormatter from "@/composables/CurrencyFormatter";
 // @ts-ignore
 import {Tab, Tabs} from 'vue3-tabs-component';
@@ -181,10 +139,10 @@ type payslipInput = {
   region: string,
   pensionPercentage: number,
   pensionType: string,
-  salarySacrificeApplied: boolean, // TODO type?
+  salarySacrificeApplied: boolean,
   studentLoanLocation: string,
   studentLoan2012: string,
-  hasStudentLoan: boolean, //  TODO check if we can do this
+  hasStudentLoan: boolean,
   studentLoanPlan: string;
 };
 type payslipOutputPeriod = {
@@ -202,7 +160,7 @@ type payslipOutput = {
   week: payslipOutputPeriod
 }
 
-const props = defineProps(['serviceRoot', 'optionData'])
+const props = defineProps(['serviceRoot', 'optionData', 'defaultOption'])
 
 const input = ref<payslipInput>({
   salarySacrificeApplied: false,
@@ -236,6 +194,11 @@ const output = ref<payslipOutput>({
 });
 
 const processed= ref(false);
+
+const options = computed(() => {
+  const options = JSON.parse(props.optionData)
+  return options
+})
 
 const outputFormatted = computed(() => {
   const formatted = new Map();
@@ -277,7 +240,6 @@ watch(studentLoanPlan, plan => {
 });
 
 async function submitCalculation() {
-  // TODO reproduce setREsult
   const url = `${props.serviceRoot}/calculator/payslip`;
   const response = await fetch(url, {
     method: 'POST',
@@ -290,12 +252,20 @@ async function submitCalculation() {
   output.value = result;
   processed.value = true;
 }
-// TODO do we need @clicked="tabClicked"
+
+onMounted(() => {
+  if (props.defaultOption) {
+    input.value.date = props.defaultOption;
+  } else if(props.optionData) {
+    // Parse the json and try to pick a default. Note we are duplicating the computed options.
+    const options = JSON.parse(props.optionData);
+    if (options[0][0]) {
+      input.value.date = options[0][0];
+    }
+  }
+})
 
 
-
-
- // TODO tabsupport
 </script>
 <style lang="scss">
 @import '@/scss/globals.scss';

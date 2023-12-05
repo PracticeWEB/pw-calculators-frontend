@@ -10,7 +10,7 @@ export default defineConfig({
       lib: {
           entry: './src/elements/PropertyTaxesElement.ts',
           name:  'PropertyTaxes',
-          fileName: 'property-taxes'
+          fileName: 'propertytaxes'
       }
     },
     plugins: [
@@ -23,7 +23,7 @@ export default defineConfig({
         }),
     ],
     define: {
-        'process.env': process.env// TODO protect thi more.
+        'process.env': {}
     },
     resolve: {
         alias: {
