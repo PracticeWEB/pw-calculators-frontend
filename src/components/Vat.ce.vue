@@ -2,7 +2,7 @@
 Vat calculator component.
 -->
 <template>
-  <div class="calculator-container pw-calc">
+  <div class="calculator-container pw-calc" part="pwcalculator">
     <div class="content-container">
       <form class="input" @submit.prevent="submitCalculation">
         <div class="pw-calc-header">
@@ -41,7 +41,7 @@ Vat calculator component.
             </label>
           </div>
         </fieldset>
-        <button type="submit" class="pw-calc-button btn et_pb_button">Calculate</button>
+        <button type="submit" class="pw-calc-button btn et_pb_button" part="pwcalculator-button">Calculate</button>
       </form>
       <br />
       <div class="pw-calc-output" v-if="processed">

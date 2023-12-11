@@ -3,7 +3,7 @@ Property Taxes calculator component.
 Property Taxes covers both Stamp Duty and Land  & Buildings Transaction Tax ( LBTT).
 -->
 <template>
-  <div class="practiceweb-calculator">
+  <div class="practiceweb-calculator" part="pwcalculator">
     <div class="content-container">
       <div class="pw-calc-header">
         <h3 class="pw-calc-header__title">{{ dutyName }}</h3>
@@ -135,7 +135,7 @@ Property Taxes covers both Stamp Duty and Land  & Buildings Transaction Tax ( LB
             </label>
           </div>
         </fieldset>
-        <button type="submit" class="pw-calc-button btn et_pb_button">Calculate</button>
+        <button type="submit" class="pw-calc-button btn et_pb_button" part="pwcalculator-button">Calculate</button>
       </form>
       <br />
       <div class="pw-calc-output" v-if="processed">
@@ -191,7 +191,19 @@ type propertyOutput = {
   secondHomeDuty: number
 }
 
-const props = defineProps(['serviceRoot', 'optionData', 'defaultOption'])
+const props = defineProps({
+  serviceRoot: {
+    type: String,
+    required: true,
+  },
+  optionData: {
+    type: String,
+    default: "[[\"2021-10\", \"From 1st October 2021\"],[\"2021-07\", \"1st July 2021 to 30th September 2021\"],[\"2021\",\"1st April 2021 to 30th June 2021\"],[\"2020\",\"8th July 2020 to 31st March 2021\"]]",
+  },
+  defaultOption: {
+    type: String,
+  }
+});
 
 const input = ref<propertyInput>({
   region: 'england',
@@ -218,7 +230,7 @@ const dutyName = computed(() => {
 })
 
 const options = computed(() => {
-  const options = JSON.parse(props.optionData)
+  const options = typeof props.optionData !== 'undefined' ? JSON.parse(props.optionData) : [];
   return options
 })
 
@@ -247,7 +259,7 @@ async function submitCalculation() {
 onMounted(() => {
   if (props.defaultOption) {
     input.value.date = props.defaultOption;
-  } else if(props.optionData) {
+  } else if(typeof props.optionData !== 'undefined') {
     // Parse the json and try to pick a default. Note we are duplicating the computed options.
     const options = JSON.parse(props.optionData);
     if (options[0][0]) {

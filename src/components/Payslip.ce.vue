@@ -1,5 +1,5 @@
 <template>
-  <div class="practiceweb-calculator">
+  <div class="practiceweb-calculator" part="pwcalculator">
     <div class="pw-calc-header">
       <h3 class="pw-calc-header__title">Payslip Calculator</h3>
     </div>
@@ -97,7 +97,7 @@
           </label>
         </div>
       </fieldset>
-      <button type="submit" class="pw-calc-button btn et_pb_button">Calculate</button>
+      <button type="submit" class="pw-calc-button btn et_pb_button" part="pwcalculator-button">Calculate</button>
     </form>
     <div class="pw-calc-output pw-calc-output__width pw-calc-output--tabs"  v-if="processed">
         <p class="pw-calc-output__description">Results based on <strong>{{ resultPeriod }}</strong> Gross pay of <span>{{ resultGrossPay }}</span></p>
@@ -160,7 +160,19 @@ type payslipOutput = {
   week: payslipOutputPeriod
 }
 
-const props = defineProps(['serviceRoot', 'optionData', 'defaultOption'])
+const props = defineProps({
+  serviceRoot: {
+    type: String,
+    required: true,
+  },
+  optionData: {
+    type: String,
+    default: "[[\"2022-07\", \"2022/23 Tax Year Calculation (from July)\"],[\"2022-04\", \"2022/23 Tax Year Calculation (April to July)\"], [\"2021\", \"2021/22 Tax Year Calculation\"]]",
+  },
+  defaultOption: {
+    type: String,
+  }
+});
 
 const input = ref<payslipInput>({
   salarySacrificeApplied: false,
@@ -196,8 +208,11 @@ const output = ref<payslipOutput>({
 const processed= ref(false);
 
 const options = computed(() => {
-  const options = JSON.parse(props.optionData)
-  return options
+  if (typeof props.optionData === 'string') {
+    return JSON.parse(props.optionData);
+  } else {
+    return [];
+  }
 })
 
 const outputFormatted = computed(() => {
@@ -256,10 +271,10 @@ async function submitCalculation() {
 onMounted(() => {
   if (props.defaultOption) {
     input.value.date = props.defaultOption;
-  } else if(props.optionData) {
+  } else if(typeof props.optionData === 'string') {
     // Parse the json and try to pick a default. Note we are duplicating the computed options.
     const options = JSON.parse(props.optionData);
-    if (options[0][0]) {
+    if ( Array.isArray(options)  && Array.isArray(options[0])) {
       input.value.date = options[0][0];
     }
   }

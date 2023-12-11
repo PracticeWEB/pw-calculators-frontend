@@ -1,3 +1,8 @@
+// Ensure that we inherit from the parent document.
+:host {
+  all: inherit !important;
+}
+
 // Start of Flex classes.
 .flex {
   display: flex;

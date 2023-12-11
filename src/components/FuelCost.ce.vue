@@ -1,5 +1,5 @@
 <template>
-  <div class="practiceweb-calculator">
+  <div class="practiceweb-calculator" part="pwcalculator">
     <div class="content-container">
       <div class="pw-calc-header">
         <h3 class="pw-calc-header__title">Fuel Cost Calculator</h3>
@@ -44,7 +44,7 @@
             />
           </div>
         </fieldset>
-        <button type="submit" class="pw-calc-button btn et_pb_button">Calculate</button>
+        <button type="submit" class="pw-calc-button btn et_pb_button" part="pwcalculator-button">Calculate</button>
       </form>
       <br />
       <div class="pw-calc-output" v-if="fuelCost">
