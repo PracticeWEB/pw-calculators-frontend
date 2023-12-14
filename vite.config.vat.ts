@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import copy from "rollup-plugin-copy";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,7 +12,20 @@ export default defineConfig({
           entry: './src/elements/VatElement.ts',
           name:  'Vat',
           fileName: 'vat'
-      }
+      },
+        rollupOptions: {
+            output: {
+                plugins:[
+                    copy({
+                        hook: "writeBundle",
+                        targets: [
+                            {src:'elements/vat/vat.umd.cjs', dest:'elements/vat', rename:'vat.umd.js'}
+                        ]
+                    })
+                ],
+            }
+        }
+
     },
     plugins: [
         vue({
