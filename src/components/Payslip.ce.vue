@@ -3,7 +3,7 @@
     <div class="pw-calc-header">
       <h3 class="pw-calc-header__title">Payslip Calculator</h3>
     </div>
-    <form class="input input--width" @submit.prevent="submitCalculation">
+    <form class="input input--width" @submit.prevent="submitCalculation" ref="scrollTo">
       <fieldset class="form-item">
         <p class="form-item__title">Gross Pay *</p>
         <div class="form-item__wrapper form-item__wrapper--gross flex-wrap">
@@ -207,6 +207,9 @@ const output = ref<payslipOutput>({
 
 const processed= ref(false);
 
+// use a ref to allow us to handle the scroll to results. We actually target the form since the results may not be in the viewport yet.
+const scrollTo = ref<null | HTMLDivElement>(null);
+
 const options = computed(() => {
   if (typeof props.optionData === 'string') {
     return JSON.parse(props.optionData);
@@ -266,6 +269,7 @@ async function submitCalculation() {
   const result = await response.json();
   output.value = result;
   processed.value = true;
+  scrollToResults();
 }
 
 onMounted(() => {
@@ -280,6 +284,9 @@ onMounted(() => {
   }
 })
 
+function scrollToResults() {
+  scrollTo.value?.scrollIntoView();
+}
 
 </script>
 <style lang="scss">
