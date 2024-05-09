@@ -15,7 +15,7 @@ coverage
 *.local
 
 # Web components
-elements/
+/elements/
 
 /cypress/videos/
 /cypress/screenshots/
