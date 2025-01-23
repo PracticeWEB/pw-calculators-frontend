@@ -121,7 +121,7 @@ Property Taxes covers both Stamp Duty and Land  & Buildings Transaction Tax ( LB
           <div class="form-item__wrapper form-item__wrapper--year-selector flex-wrap">
             <label
               class="form-item__label flex-grow"
-              v-for="[date_key, date_value] in options"
+              v-for="[date_key, date_value] in dateOptions"
               :key="date_key"
               :class="{ active: input.date === date_key }"
             >
@@ -175,8 +175,9 @@ Property Taxes covers both Stamp Duty and Land  & Buildings Transaction Tax ( LB
   </div>
 </template>
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue'
+import {computed, onMounted, ref, watch, nextTick} from 'vue'
 import currencyFormatter from '@/composables/CurrencyFormatter'
+import type { Ref } from 'vue'
 
 // Defne types.
 type propertyInput = {
@@ -191,6 +192,13 @@ type propertyOutput = {
   secondHomeDuty: number
 }
 
+
+type dateOptionData = {
+  [key:string]: dateOptionSet
+}
+
+type dateOptionSet = Array<Array<string>>
+
 const props = defineProps({
   serviceRoot: {
     type: String,
@@ -198,12 +206,20 @@ const props = defineProps({
   },
   optionData: {
     type: String,
-    default: "[[\"2021-10\", \"From 1st October 2021\"],[\"2021-07\", \"1st July 2021 to 30th September 2021\"],[\"2021\",\"1st April 2021 to 30th June 2021\"],[\"2020\",\"8th July 2020 to 31st March 2021\"]]",
+    //default: "[[\"2022-09\",\"From late 2022: England - 2022-09/ Wales 2022-10/ Scotland 2022-12\"],[\"2021-10\",\"From 1st October 2021\"],[\"2021-07\",\"1st July 2021 to 30th September 2021\"],[\"2021\",\"1st April 2021 to 30th June 2021\"]]",
+    default: "{\"england\":[[\"2022-07\", \"2022/23 Tax Year Calculation (from July)\"],[\"2022-04\", \"2022/23 Tax Year Calculation (April to July)\"], [\"2021\", \"2021/22 Tax Year Calculation\"]], \"wales\":[[\"NONE\", \"NONE\"]]}"
   },
   defaultOption: {
     type: String,
   }
 });
+
+const allDateOptions:Ref<dateOptionData> = ref({});
+
+// Ref for the filtered options.
+const dateOptions: Ref<Array<Array<string>>> = ref(
+  allDateOptions.value["england"]
+);
 
 const input = ref<propertyInput>({
   region: 'england',
@@ -212,6 +228,15 @@ const input = ref<propertyInput>({
   firstTime: 'no',
   date: new Date().getFullYear()
 })
+
+// Watcher on the region. Source uses function format since input is the ref.
+watch(() => input.value.region, async  () => {
+  // switch the options.
+  dateOptions.value= allDateOptions.value[input.value.region];
+  // Ensure that we redraw.
+  await nextTick()
+}, {immediate:true})
+
 
 const output = ref<propertyOutput>({ duty: 0, secondHomeDuty: 0 })
 const processed = ref(false)
@@ -227,11 +252,6 @@ const dutyName = computed(() => {
       break
   }
   return dutyName
-})
-
-const options = computed(() => {
-  const options = typeof props.optionData !== 'undefined' ? JSON.parse(props.optionData) : [];
-  return options
 })
 
 // Use computed prop to format the output values.
@@ -257,19 +277,32 @@ async function submitCalculation() {
 }
 
 onMounted(() => {
+  // Grab any option data attached to the tag.
+  const parsedOptions: dateOptionData |dateOptionSet = typeof props.optionData !== 'undefined' ? JSON.parse(props.optionData) : {};
+  // Try to detect the old format and wrap it if needed.
+  if (Array.isArray(parsedOptions)) {
+    allDateOptions.value = {
+      "england":  parsedOptions,
+      "wales": parsedOptions,
+      "scotland" :parsedOptions
+    };
+  } else {
+    allDateOptions.value = parsedOptions
+  }
+  // Force initial options.
+  dateOptions.value = allDateOptions.value["england"]
+
+  // Try to set default.
   if (props.defaultOption) {
-    input.value.date = props.defaultOption;
-  } else if(typeof props.optionData !== 'undefined') {
-    // Parse the json and try to pick a default. Note we are duplicating the computed options.
-    const options = JSON.parse(props.optionData);
-    if (options[0][0]) {
-      input.value.date = options[0][0];
-    }
+    input.value.date = props.defaultOption
+  } else {
+    input.value.date = dateOptions.value[0][0]
   }
 })
 
 </script>
 
 <style lang="scss">
-@import '@/scss/globals.scss';
+@use '@/scss/globals.scss';
 </style>
+

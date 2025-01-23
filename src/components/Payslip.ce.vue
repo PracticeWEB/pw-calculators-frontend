@@ -91,7 +91,7 @@
       <fieldset class="form-item">
         <p class="form-item__title">Tax year:</p>
         <div class="form-item__wrapper form-item__wrapper--year-selector  flex-wrap">
-          <label v-for="[date_key, date_value] in options" :key="date_key" class="form-item__label flex-grow" :class="{active: input.date === date_key}" >
+          <label v-for="[date_key, date_value] in dateOptions" :key="date_key" class="form-item__label flex-grow" :class="{active: input.date === date_key}" >
             <input type="radio" v-model="input.date" :value="date_key" class="form-item__input form-item__input--radio form-item__input--radio--hidden" />
             {{ date_value }}
           </label>
@@ -127,8 +127,9 @@
 </template>
 <script setup lang="ts">
 
-import {ref, computed, watch, onMounted} from "vue";
+import {ref, computed, watch, onMounted, nextTick} from "vue";
 import currencyFormatter from "@/composables/CurrencyFormatter";
+import type { Ref } from 'vue'
 // @ts-ignore
 import {Tab, Tabs} from 'vue3-tabs-component';
 
@@ -160,6 +161,11 @@ type payslipOutput = {
   week: payslipOutputPeriod
 }
 
+type dateOptionData = {
+  [key:string]: dateOptionSet
+}
+type dateOptionSet = Array<Array<string>>
+
 const props = defineProps({
   serviceRoot: {
     type: String,
@@ -173,6 +179,15 @@ const props = defineProps({
     type: String,
   }
 });
+
+// Ref for the full date option set.
+const allDateOptions:Ref<dateOptionData> = ref({});
+
+// Ref for the filtered options.
+const dateOptions: Ref<Array<Array<string>>> = ref(
+    allDateOptions.value["england"]
+);
+
 
 const input = ref<payslipInput>({
   salarySacrificeApplied: false,
@@ -209,14 +224,6 @@ const processed= ref(false);
 
 // use a ref to allow us to handle the scroll to results. We actually target the form since the results may not be in the viewport yet.
 const scrollTo = ref<null | HTMLDivElement>(null);
-
-const options = computed(() => {
-  if (typeof props.optionData === 'string') {
-    return JSON.parse(props.optionData);
-  } else {
-    return [];
-  }
-})
 
 const outputFormatted = computed(() => {
   const formatted = new Map();
@@ -257,6 +264,15 @@ watch(studentLoanPlan, plan => {
   input.value.studentLoanPlan = plan;
 });
 
+// Watch for region changes so that the button lists can update.
+watch( () => input.value.region, async() => {
+  // switch the options.
+  dateOptions.value= allDateOptions.value[input.value.region];
+  // Ensure that we redraw.
+  await nextTick()
+}, {immediate: true})
+
+
 async function submitCalculation() {
   const url = `${props.serviceRoot}/calculator/payslip`;
   const response = await fetch(url, {
@@ -273,14 +289,27 @@ async function submitCalculation() {
 }
 
 onMounted(() => {
+  // Grab any option data attached to the tag.
+  const parsedOptions: dateOptionData |dateOptionSet = typeof props.optionData !== 'undefined' ? JSON.parse(props.optionData) : {};
+  // Try to detect the old format and wrap it if needed.
+  if (Array.isArray(parsedOptions)) {
+    allDateOptions.value = {
+      "england":  parsedOptions,
+      "wales": parsedOptions,
+      "scotland" :parsedOptions
+    };
+  } else {
+    allDateOptions.value = parsedOptions
+  }
+
+  // Force initial options.
+  dateOptions.value = allDateOptions.value["england"]
+
+  // Try to set default.
   if (props.defaultOption) {
-    input.value.date = props.defaultOption;
-  } else if(typeof props.optionData === 'string') {
-    // Parse the json and try to pick a default. Note we are duplicating the computed options.
-    const options = JSON.parse(props.optionData);
-    if ( Array.isArray(options)  && Array.isArray(options[0])) {
-      input.value.date = options[0][0];
-    }
+    input.value.date = props.defaultOption
+  } else {
+    input.value.date = dateOptions.value[0][0]
   }
 })
 
@@ -290,5 +319,5 @@ function scrollToResults() {
 
 </script>
 <style lang="scss">
-@import '@/scss/globals.scss';
+@use '@/scss/globals.scss';
 </style>

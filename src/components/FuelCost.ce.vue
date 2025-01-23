@@ -100,5 +100,5 @@ async function submitCalculation() {
 </script>
 
 <style lang="scss">
-@import '@/scss/globals.scss';
+@use '@/scss/globals.scss';
 </style>
