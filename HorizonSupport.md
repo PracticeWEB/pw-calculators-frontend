@@ -27,16 +27,29 @@ It is also possible to generate a single calculator but it's typically simplest 
 
 **Dynamic date options**
 
-On the payslip and propertytaxes calculators we support specifying a list of date options as a data attribute on  the tag.
+On the payslip and propertytaxes calculators we support specifying a list of date options as a data attribute on the tag.
+
 This should be added as a json string representing an array of arrays where each item has a key and a label.
+```
+{
+"england": [["date-key1"," Date Label 1"],["date-key2"," Date Label 2"]],
+"wales": [["date-key1"," Date Label 1"],["date-key2"," Date Label 2"]],
+"scotland": [["date-key3"," Date Label 3"],["date-key2"," Date Label 2"]],
+}
+```
+
+
+To update this configuration it should be possible to use the wordpress cli ( note example here has england only)
+```
+ wp  @develop option  update   pw_calculator_payslip_options '{"england":["2023-01","2023 Tax Year Calculation from Jan 23"],["2022-07", "2022/23 Tax Year Calculation (from July)"],["2022-04", "2022/23 Tax Year Calculation (April to July)"], ["2021", "2021/22 Tax Year Calculation"]}'
+```
+
+We had an older format where region information wasn't taken into account.
 ```
 [["date-key1"," Date Label 1"],["date-key2"," Date Label 2"]]
 ```
+If this configuration is seen then we assume that the options should be applied to all nations and map it into the newer structure.
 
-To update this configuration it should be possible to use the wordpress cli
-```
- wp  @develop option  update   pw_calculator_payslip_options '[["2023-01","2023 Tax Year Calculation from Jan 23"],["2022-07", "2022/23 Tax Year Calculation (from July)"],["2022-04", "2022/23 Tax Year Calculation (April to July)"], ["2021", "2021/22 Tax Year Calculation"]]'
-```
 
 **Styling calculators**
 
